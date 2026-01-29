@@ -1,0 +1,11 @@
+## 4.3 Build Metrics
+**tmux session name:** LKP-esp
+
+**Build timing:**
+- real: 12m5.903s
+- user: 223m21.954s
+- sys: 37m41.789s
+**Kernel image size:**
+- bzImage: 15 MB (from ls -lh arch/x86/boot/bzImage)
+**Module count:**
+- Total .ko files: 6386 (from find . -name "*.ko" | wc -l)
