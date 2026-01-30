@@ -39,25 +39,26 @@ PCIe subsystem took longest because PCI bus initialization involves probing the 
 
 **Q1: loglevel=8 effect**
 
-- Default dmesg lines: 2709
+- Default dmesg lines: 2690
 
-- With loglevel=8: XXXX
+- With loglevel=8: 2709
 
-- Difference: +XXX lines
+- Difference: +19 lines
 
 **Q2: loglevel parsing location**
 
-- File: <filename>
+- File: init/main.c
 
-- Line: XXX
+- Line: 265
 
-- Command used: <your search command>
+- Command used: 
+`grep -rn 'early_param("loglevel"'`
 
 **Q3: Early parameter parsing function**
 
-- Function: <function name>
+- Function: __init parse_early_param
 
-- Location: <file>:<line>
+- Location: init/main.c:783
 
 **Q4: early_param() vs __setup()**
 
