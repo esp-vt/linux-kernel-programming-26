@@ -1,0 +1,12 @@
+## 6.1 GDB Connection
+**FEMU launch command:**
+<your FEMU command with -s flag>
+**GDB session:**
+$ gdb vmlinux
+(gdb) target remote :1234
+Remote debugging using :1234
+0xffffffff8104XXXX in native_safe_halt ()
+(gdb) p jiffies
+$1 = XXXXXXXXXX
+**Symbol verification:** SUCCESS (jiffies printed a number)
+**Screenshot:** gdb-screenshot.png (attached)

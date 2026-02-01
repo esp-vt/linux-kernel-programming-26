@@ -1,0 +1,21 @@
+- target remote :1234
+
+- file vmlinux
+
+- p jiffies
+
+- p init_task.comm
+
+- p init_task.mm
+
+- info threads
+
+- b __x64_sys_getpid
+
+- c
+
+- echo $$
+
+- p $task.pid
+
+- p $task.comm
