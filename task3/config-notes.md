@@ -34,9 +34,9 @@ $ make modules_install && make modules
 |-----------------------------|------------------------------------|
 | CONFIG_DEBUG_INFO_DWARF5 | It generates modern debugging information (DWARF version 5). DWARF5 is |
 | CONFIG_GDB_SCRIPTS |This builds helper scripts specifically for GDB. |
-| CONFIG_FRAME_POINTER | <1-2 sentences> |
-| CONFIG_MAGIC_SYSRQ | <1-2 sentences> |
-| CONFIG_RANDOMIZE_BASE (off) | <1-2 sentences> |
+| CONFIG_FRAME_POINTER | It ensures the compiler maintains stack frame pointers, which allows GDB to reliably trace the function call history (backtrace). Without this, debugging crashes is very difficult. |
+| CONFIG_MAGIC_SYSRQ | It enables "Magic SysRq" keys that allow you to send emergency commands (like reboot or dump state) directly to the kernel, even if the system is completely frozen. |
+| CONFIG_RANDOMIZE_BASE (off) | It disables KASLR (memory randomization) so that kernel memory addresses remain static. This is required for GDB to correctly match breakpoints and symbols to the code. |
 
 ## 4.3 Build Metrics
 
