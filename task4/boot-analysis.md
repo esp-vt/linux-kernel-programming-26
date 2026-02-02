@@ -64,6 +64,6 @@ PCIe subsystem took longest because PCI bus initialization involves probing the 
 
 | Aspect | early_param() | __setup() |
 |--------------|-------------------------|------------------------|
-| When parsed | <your answer> | <your answer> |
-| Use case | <your answer> | <your answer> |
-| Example | <your answer> | <your answer> |
+| When parsed | Very Early (Before memory/device init) | Later (During device/driver init) |
+| Use case | System-critical options (Console, Memory) | Device drivers, non-critical features |
+| Example | loglevel, mem, console | netdev, root, ro |
