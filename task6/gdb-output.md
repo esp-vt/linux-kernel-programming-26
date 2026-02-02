@@ -23,6 +23,7 @@ $1 = 4294667296
 
 **Screenshot:** 
 gdb-screenshot.png (attached)
+![gdb-screenshot](./gdb-screenshot.png)
 
 
 ## 6.2 Kernel State Examination
