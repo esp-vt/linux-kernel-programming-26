@@ -1,5 +1,5 @@
 ## 4.1 Kernel Naming
-**LOCALVERSION value:** -<YourPID>-LKP26
+**LOCALVERSION value:** -esp-LKP26
 **Method used:** 
 - [*] menuconfig: General setup -> Local version
 - [ ] Direct .config edit: CONFIG_LOCALVERSION="-xxx-LKP26"
@@ -74,7 +74,7 @@ Linux aquamarine 6.18.0-esp-LKP26 #1 SMP PREEMPT_DYNAMIC Tue Jan 27 01:35:02 UTC
 
 - [*] Version shows 6.18.0
 
-- [*] LOCALVERSION shows -<YourPID>-LKP26
+- [*] LOCALVERSION shows -esp-LKP26
 
 - [*] SMP indicates multi-processor support
 
