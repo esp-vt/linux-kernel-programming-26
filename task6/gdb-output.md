@@ -34,7 +34,7 @@ gdb-screenshot.png (attached)
 
 $1 = "swapper\000\000\000\000\000\000\000\000"
 
-Explanation: <what is PID 0 and why this name?>
+Explanation: PID 0 is the idle task (also called "swapper"). It is the first process created during boot. It runs only when the CPU is free (has nothing else to do).
 
 **Q2: init_task.mm**
 
@@ -42,7 +42,7 @@ Explanation: <what is PID 0 and why this name?>
 
 $2 = (struct mm_struct *) 0x0
 
-Explanation: <what is this value and why?>
+Explanation: The value is NULL (0x0). This is because init_task is a kernel thread, not a user program. It only runs in kernel space, so it does not need a user memory map (mm_struct).
 
 **Q3: Thread count**
 
