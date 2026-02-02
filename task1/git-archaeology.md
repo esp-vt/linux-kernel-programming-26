@@ -12,7 +12,7 @@
 
 - Commit: <052c3d87c82e> <sched/fair: Limit run to parity to the min slice of enqueued entities>
 
-- Problem addressed: <1-2 sentence explanation>
+- Problem addressed: It fixes a latency issue where a task could hold the CPU for too long while trying to "catch up" on its runtime, causing delays for other waiting tasks. The patch limits this execution time to improve system responsiveness.
 
 **Q3: Top 3 contributors**
 
