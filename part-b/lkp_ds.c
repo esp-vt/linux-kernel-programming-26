@@ -2,20 +2,20 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/list.h>      /* Linked List [cite: 30] */
-#include <linux/hashtable.h> /* Hash Table [cite: 30] */
-#include <linux/rbtree.h>    /* Red-Black Tree [cite: 30] */
-#include <linux/xarray.h>    /* XArray [cite: 30] */
-#include <linux/slab.h>      /* kmalloc [cite: 231] */
-#include <linux/proc_fs.h>   /* /proc [cite: 195] */
-#include <linux/seq_file.h>  /* seq_file [cite: 196] */
-#include <linux/ktime.h>     /* ktime_get_ns [cite: 334] */
-#include <linux/random.h>    /* get_random_u32 [cite: 348] */
+#include <linux/list.h>
+#include <linux/hashtable.h>
+#include <linux/rbtree.h>
+#include <linux/xarray.h>
+#include <linux/slab.h>
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
+#include <linux/ktime.h>
+#include <linux/random.h>
 #include <linux/string.h>
+#include <linux/compiler.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Your Name");
-MODULE_DESCRIPTION("LKP: Data Structures Scalability Benchmark");
 
 struct my_entry {
     int value;
@@ -25,23 +25,23 @@ struct my_entry {
     struct rb_node rb_node;
 };
 
-/* Parameters [cite: 244, 352] */
+/* 전역 변수 및 파라미터 */
 static char *int_str = "";
 module_param(int_str, charp, 0644);
 static int bench_size = 1000;
 module_param(bench_size, int, 0644);
 
-/* Data Structures [cite: 259] */
+static volatile int dummy_sum = 0;
+
 static LIST_HEAD(my_list);
-static DEFINE_HASHTABLE(my_hash, 14); /* 2^14 buckets for scale [cite: 475] */
+static DEFINE_HASHTABLE(my_hash, 14);
 static struct rb_root my_rb = RB_ROOT;
 static DEFINE_XARRAY(my_xa);
 
-/* Benchmark Results (nanoseconds per operation) [cite: 358] */
 static u64 ins_results[4], lkp_results[4];
 
-/* RB-Tree Insertion [cite: 305, 307] */
-void insert_rbtree(struct rb_root *root, struct my_entry *data) {
+/* 1. 프로토타입 경고 해결: static 선언 */
+static void insert_rbtree(struct rb_root *root, struct my_entry *data) {
     struct rb_node **new = &(root->rb_node), *parent = NULL;
     while (*new) {
         struct my_entry *this = rb_entry(*new, struct my_entry, rb_node);
@@ -53,7 +53,7 @@ void insert_rbtree(struct rb_root *root, struct my_entry *data) {
     rb_insert_color(&data->rb_node, root);
 }
 
-/* Part B.1 & B.2 Display (/proc/lkp_ds) [cite: 249, 284] */
+/* 출력 함수들 */
 static int lkp_ds_show(struct seq_file *m, void *v) {
     struct my_entry *entry;
     int bkt;
@@ -62,50 +62,57 @@ static int lkp_ds_show(struct seq_file *m, void *v) {
 
     seq_printf(m, "Linked list:   ");
     list_for_each_entry(entry, &my_list, node) {
-        seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
-        first = false;
+        if (entry->index < 100000) {
+            seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
+            first = false;
+        }
     }
-    
     seq_printf(m, "\nHash table:    ");
     first = true;
     hash_for_each(my_hash, bkt, entry, hnode) {
-        seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
-        first = false;
+        if (entry->index < 100000) {
+            seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
+            first = false;
+        }
     }
-
     seq_printf(m, "\nRed-black tree: ");
     first = true;
     for (struct rb_node *n = rb_first(&my_rb); n; n = rb_next(n)) {
-        seq_printf(m, "%s%d", first ? "" : ", ", rb_entry(n, struct my_entry, rb_node)->value);
-        first = false;
+        entry = rb_entry(n, struct my_entry, rb_node);
+        if (entry->index < 100000) {
+            seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
+            first = false;
+        }
     }
-    seq_printf(m, " (sorted)");
-
-    seq_printf(m, "\nXArray:         ");
+    seq_printf(m, " (sorted)\nXArray:         ");
     first = true;
     xa_for_each(&my_xa, index, entry) {
-        seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
-        first = false;
+        if (entry->index < 100000) {
+            seq_printf(m, "%s%d", first ? "" : ", ", entry->value);
+            first = false;
+        }
     }
     seq_printf(m, " (by index)\n");
     return 0;
 }
 
-/* Part B.3 Benchmark Report (/proc/lkp_ds_bench) [cite: 358-360] */
 static int lkp_ds_bench_show(struct seq_file *m, void *v) {
     seq_printf(m, "LKP Data Structure Benchmark (N=%d)\n", bench_size);
     seq_printf(m, "=======================================\n");
-    seq_printf(m, "Insert (ns/op):\n");
-    seq_printf(m, "Linked list: %llu\nHash table: %llu\nRed-black tree: %llu\nXArray: %llu\n\n",
+    seq_printf(m, "Insert (ns/op):\nLinked list: %llu\nHash table: %llu\nRed-black tree: %llu\nXArray: %llu\n\n",
                ins_results[0], ins_results[1], ins_results[2], ins_results[3]);
-    seq_printf(m, "Lookup (ns/op):\n");
-    seq_printf(m, "Linked list: %llu\nHash table: %llu\nRed-black tree: %llu\nXArray: %llu\n",
+    seq_printf(m, "Lookup (ns/op):\nLinked list: %llu\nHash table: %llu\nRed-black tree: %llu\nXArray: %llu\n",
                lkp_results[0], lkp_results[1], lkp_results[2], lkp_results[3]);
     return 0;
 }
 
-static int lkp_ds_open(struct inode *i, struct file *f) { return single_open(f, lkp_ds_show, NULL); }
-static int lkp_ds_bench_open(struct inode *i, struct file *f) { return single_open(f, lkp_ds_bench_show, NULL); }
+/* 2. 에러 해결: lkp_ds_bench_open 내에서 lkp_ds_bench_show를 호출해야 함 */
+static int lkp_ds_open(struct inode *i, struct file *f) { 
+    return single_open(f, lkp_ds_show, NULL); 
+}
+static int lkp_ds_bench_open(struct inode *i, struct file *f) { 
+    return single_open(f, lkp_ds_bench_show, NULL); 
+}
 
 static const struct proc_ops ds_ops = { .proc_open = lkp_ds_open, .proc_read = seq_read, .proc_release = single_release };
 static const struct proc_ops bench_ops = { .proc_open = lkp_ds_bench_open, .proc_read = seq_read, .proc_release = single_release };
@@ -113,104 +120,103 @@ static const struct proc_ops bench_ops = { .proc_open = lkp_ds_bench_open, .proc
 static int __init lkp_ds_init(void) {
     char *s, *p, *working_str;
     int val, i;
-    struct my_entry *entry, *search_entry;
-    u64 start;
-    int *bench_values;
+    struct my_entry *e, *se;
+    ktime_t start;
+    int *vals;
 
-    /* 1. Correctness Data (int_str) [cite: 243-248] */
     if (int_str && *int_str) {
         working_str = kstrdup(int_str, GFP_KERNEL);
-        p = working_str;
-        i = 0;
+        p = working_str; i = 0;
         while ((s = strsep(&p, ",")) != NULL) {
             if (kstrtoint(s, 10, &val) == 0) {
-                entry = kmalloc(sizeof(*entry), GFP_KERNEL);
-                if (!entry) continue;
-                entry->value = val;
-                entry->index = i++;
-                list_add_tail(&entry->node, &my_list);
-                hash_add(my_hash, &entry->hnode, val);
-                insert_rbtree(&my_rb, entry);
-                xa_store(&my_xa, entry->index, entry, GFP_KERNEL);
+                e = kmalloc(sizeof(*e), GFP_KERNEL);
+                if (!e) continue;
+                e->value = val; e->index = i++;
+                list_add_tail(&e->node, &my_list);
+                hash_add(my_hash, &e->hnode, val);
+                insert_rbtree(&my_rb, e);
+                xa_store(&my_xa, e->index, e, GFP_KERNEL);
             }
         }
         kfree(working_str);
     }
 
-    /* 2. Scalability Benchmark [cite: 351-357] */
-    bench_values = kmalloc_array(bench_size, sizeof(int), GFP_KERNEL);
-    if (!bench_values) return -ENOMEM;
+    vals = kmalloc_array(bench_size, sizeof(int), GFP_KERNEL);
+    if (!vals) return -ENOMEM;
+    for (i = 0; i < bench_size; i++) vals[i] = get_random_u32();
 
-    for (i = 0; i < bench_size; i++) bench_values[i] = get_random_u32();
-
-    /* Insert Benchmark */
     for (int ds = 0; ds < 4; ds++) {
-        start = ktime_get_ns();
+        start = ktime_get();
         for (i = 0; i < bench_size; i++) {
-            entry = kmalloc(sizeof(*entry), GFP_KERNEL);
-            if (!entry) break;
-            entry->value = bench_values[i];
-            entry->index = i + 1000000; /* Distinct from correctness data [cite: 474] */
-            if (ds == 0) list_add_tail(&entry->node, &my_list);
-            else if (ds == 1) hash_add(my_hash, &entry->hnode, entry->value);
-            else if (ds == 2) insert_rbtree(&my_rb, entry);
-            else xa_store(&my_xa, entry->index, entry, GFP_KERNEL);
+            e = kmalloc(sizeof(*e), GFP_KERNEL);
+            if (!e) break;
+            e->value = vals[i]; e->index = i + 100000;
+            if (ds == 0) list_add_tail(&e->node, &my_list);
+            else if (ds == 1) hash_add(my_hash, &e->hnode, e->value);
+            else if (ds == 2) insert_rbtree(&my_rb, e);
+            else xa_store(&my_xa, e->index, e, GFP_KERNEL);
+            barrier(); // 3. 에러 해결: 최신 커널은 optimization_barrier 대신 barrier() 사용
         }
-        ins_results[ds] = (ktime_get_ns() - start) / bench_size;
+        ins_results[ds] = ktime_to_ns(ktime_sub(ktime_get(), start)) / bench_size;
     }
 
-    /* Lookup Benchmark [cite: 356] */
-    /* List Lookup (O(n)) */
-    start = ktime_get_ns();
-    for (i = 0; i < (bench_size > 1000 ? 1000 : bench_size); i++) { /* Limit list search to save time */
-        list_for_each_entry(search_entry, &my_list, node) {
-            if (search_entry->value == bench_values[i]) break;
+    /* Lookup Benchmarks... (barrier() 사용 준수) */
+    start = ktime_get();
+    for (i = 0; i < (bench_size > 1000 ? 100 : 1000); i++) {
+        int target = vals[bench_size - 1];
+        list_for_each_entry(se, &my_list, node) {
+            if (se->value == target) { dummy_sum += se->value; break; }
+            barrier();
         }
     }
-    lkp_results[0] = (ktime_get_ns() - start) / (i);
+    lkp_results[0] = ktime_to_ns(ktime_sub(ktime_get(), start)) / i;
 
-    /* Hash Lookup (O(1)) */
-    start = ktime_get_ns();
+    // Hash Lookup
+    start = ktime_get();
     for (i = 0; i < bench_size; i++) {
-        hash_for_each_possible(my_hash, search_entry, hnode, bench_values[i]) {
-            if (search_entry->value == bench_values[i]) break;
+        hash_for_each_possible(my_hash, se, hnode, vals[i]) {
+            if (se->value == vals[i]) { dummy_sum += se->value; break; }
         }
+        barrier();
     }
-    lkp_results[1] = (ktime_get_ns() - start) / bench_size;
+    lkp_results[1] = ktime_to_ns(ktime_sub(ktime_get(), start)) / bench_size;
 
-    /* RB-Tree Lookup (O(log n)) */
-    start = ktime_get_ns();
+    // RB-Tree Lookup
+    start = ktime_get();
     for (i = 0; i < bench_size; i++) {
-        struct rb_node *node = my_rb.rb_node;
-        while (node) {
-            search_entry = rb_entry(node, struct my_entry, rb_node);
-            if (bench_values[i] < search_entry->value) node = node->rb_left;
-            else if (bench_values[i] > search_entry->value) node = node->rb_right;
-            else break;
+        struct rb_node *n = my_rb.rb_node;
+        while (n) {
+            se = rb_entry(n, struct my_entry, rb_node);
+            if (vals[i] < se->value) n = n->rb_left;
+            else if (vals[i] > se->value) n = n->rb_right;
+            else { dummy_sum += se->value; break; }
         }
+        barrier();
     }
-    lkp_results[2] = (ktime_get_ns() - start) / bench_size;
+    lkp_results[2] = ktime_to_ns(ktime_sub(ktime_get(), start)) / bench_size;
 
-    /* XArray Lookup (O(1)) */
-    start = ktime_get_ns();
+    // XArray Lookup
+    start = ktime_get();
     for (i = 0; i < bench_size; i++) {
-        xa_load(&my_xa, i + 1000000);
+        se = xa_load(&my_xa, i + 100000);
+        if (se) dummy_sum += se->value;
+        barrier();
     }
-    lkp_results[3] = (ktime_get_ns() - start) / bench_size;
+    lkp_results[3] = ktime_to_ns(ktime_sub(ktime_get(), start)) / bench_size;
 
-    kfree(bench_values);
+    kfree(vals);
     proc_create("lkp_ds", 0, NULL, &ds_ops);
     proc_create("lkp_ds_bench", 0, NULL, &bench_ops);
     return 0;
 }
 
 static void __exit lkp_ds_exit(void) {
-    struct my_entry *entry, *tmp;
-    list_for_each_entry_safe(entry, tmp, &my_list, node) {
-        list_del(&entry->node);
-        kfree(entry); /* [cite: 235, 621] */
+    struct my_entry *e, *tmp;
+    list_for_each_entry_safe(e, tmp, &my_list, node) {
+        list_del(&e->node);
+        kfree(e);
     }
-    xa_destroy(&my_xa); /* [cite: 310] */
+    xa_destroy(&my_xa);
     remove_proc_entry("lkp_ds", NULL);
     remove_proc_entry("lkp_ds_bench", NULL);
 }
