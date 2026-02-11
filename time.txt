@@ -1,0 +1,19 @@
+1 Part A.1 (Hello LKP): X hours
+
+2 Part A.2 (/proc Interface): Y hours
+
+3 Part B.1 (List & Hash): Z hours
+
+4 Part B.2 (RB-Tree & XArray): W hours
+
+5 Part B.3 (Benchmark): V hours
+
+6 Conceptual Questions: U hours
+
+7 Total: N hours
+
+8
+
+9 Biggest challenge: <description>
+
+10 Most interesting discovery: <description>

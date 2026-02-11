@@ -8,16 +8,20 @@
 
 **Test output (dmesg | grep "lkp:"):**
  
-<paste your dmesg output showing greeting with parameters>
+[ 1510.848055] lkp: module loaded
+[ 1510.848056] lkp: Hello, LKP! (1)
+[ 1510.885386] lkp: Goodbye, LKP! module unloaded
 
 **Parameter verification:**
 
 $ cat /sys/module/lkp_hello/parameters/name
-<output>
+
+LKP
 
 $ cat /sys/module/lkp_hello/parameters/count
 
-<output>
+1
+
 
 
 ## A.2 Module with /proc Interface
@@ -33,11 +37,23 @@ $ cat /sys/module/lkp_hello/parameters/count
 
 $ cat /proc/lkp_info
 
-<paste output>
+```
+LKP Info Module
+Load time (jiffies): 4296418593
+Current jiffies:     4296424022
+Uptime since load:   5429 jiffies (5429 ms)
+Access count:        1
+```
 
 $ cat /proc/lkp_info # second read
 
-<paste output showing incremented access count>
+```
+KP Info Module
+Load time (jiffies): 4296418593
+Current jiffies:     4296425514
+Uptime since load:   6921 jiffies (6921 ms)
+Access count:        2
+```
 
 ## B.1 Linked List & Hash Table
 
@@ -45,7 +61,10 @@ $ cat /proc/lkp_info # second read
 
 $ cat /proc/lkp_ds
 
-<paste output>
+```
+Linked list: 1, 2, 3, 4, 5
+Hash table:  3, 1, 4, 2, 5
+```
 
 **Memory cleanup verification:**
  
@@ -53,7 +72,15 @@ $ sudo rmmod lkp_ds
 
 $ dmesg | grep "lkp:" 
 
-<show cleanup messages>
+```
+[ 2403.701524] lkp: module loaded
+[ 2475.395015] lkp: freed entry
+[ 2475.395027] lkp: freed entry
+[ 2475.395030] lkp: freed entry
+[ 2475.395032] lkp: freed entry
+[ 2475.395033] lkp: freed entry
+[ 2475.395039] lkp: module unloaded
+```
 
 ## B.2 Red-Black Tree & XArray
 
@@ -61,8 +88,12 @@ $ dmesg | grep "lkp:"
 
 $ cat /proc/lkp_ds
 
-<paste full output with all 4 data structures>
-
+```
+Linked list:   1, 2, 3, 4, 5
+Hash table:    3, 1, 4, 2, 5
+Red-black tree: 1, 2, 3, 4, 5 (sorted)
+XArray:         1, 2, 3, 4, 5 (by index)
+```
 
 **Verification with different input:**
 
@@ -72,7 +103,12 @@ $ sudo insmod lkp_ds.ko int_str="5,3,1,4,2"
 
 $ cat /proc/lkp_ds
 
-<paste output - note sorted order in RB tree>
+```
+Linked list:   5, 3, 1, 4, 2
+Hash table:    3, 1, 4, 2, 5
+Red-black tree: 1, 2, 3, 4, 5 (sorted)
+XArray:         5, 3, 1, 4, 2 (by index)
+```
 
 ## B.3 Scalability Benchmark
 
@@ -80,7 +116,6 @@ $ cat /proc/lkp_ds
 
 $ cat /proc/lkp_ds_bench
 
-<paste output>
 
 **Data table (ns/op):**
  
