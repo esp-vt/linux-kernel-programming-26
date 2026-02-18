@@ -1,1 +1,0 @@
-savedcmd_/home/esp/lkp-26/part-b/lkp_ds.ko := ld -r -m elf_x86_64 -z noexecstack --no-warn-rwx-segments --build-id=sha1  -T scripts/module.lds -o /home/esp/lkp-26/part-b/lkp_ds.ko /home/esp/lkp-26/part-b/lkp_ds.o /home/esp/lkp-26/part-b/lkp_ds.mod.o

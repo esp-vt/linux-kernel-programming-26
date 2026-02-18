@@ -98,7 +98,8 @@ static struct sock_filter filter[] = {
 	ALLOW_SYSCALL(__NR_kstats),
 
 	/* TODO: If you implemented sys_procinfo, add it here: */
-	/* ALLOW_SYSCALL(__NR_procinfo), */
+	ALLOW_SYSCALL(__NR_procinfo), 
+
 
 	/* Default: deny with EPERM (not SIGKILL -- graceful failure) */
 	BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | EPERM),
@@ -168,6 +169,19 @@ int main(void)
 	 * SECCOMP_RET_ERRNO don't kill the process -- they just make the
 	 * syscall return -1 with the specified errno.
 	 */
+
+	errno = 0; 
+	ret = syscall(__NR_getpid); 
+
+	if (ret < 0) {
+		printf("  DENIED: %s (errno=%d)\n", strerror(errno), errno);
+		if (errno == EPERM)
+			printf("  CORRECT: getpid() was gracefully denied with EPERM.\n");
+		else
+			printf("  UNEXPECTED: Expected EPERM (1), got %d\n", errno);
+	} else {
+		printf("  WARNING: getpid() succeeded (returned %ld) -- filter is not working!\n", ret);
+	}
 
 	printf("\n[*] Process survived!  (BPF filter uses EPERM, not SIGKILL)\n");
 	return 0;

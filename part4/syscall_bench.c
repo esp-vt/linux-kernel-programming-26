@@ -219,9 +219,24 @@ static struct bench_stats bench_getpid_syscall(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
 
-	/* TODO: implement */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		syscall(__NR_getpid);
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			syscall(__NR_getpid);
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 
@@ -230,9 +245,24 @@ static struct bench_stats bench_getpid_libc(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
 
-	/* TODO: implement */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		getpid();
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			getpid();
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 
@@ -240,12 +270,26 @@ static struct bench_stats bench_getpid_libc(uint64_t freq_hz)
 static struct bench_stats bench_gtod_syscall(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
+	struct timeval tv;
 
-	/* TODO: implement
-	 * Hint: struct timeval tv; syscall(__NR_gettimeofday, &tv, NULL);
-	 */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		syscall(__NR_gettimeofday, &tv, NULL);
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			syscall(__NR_gettimeofday, &tv, NULL);
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 
@@ -253,12 +297,26 @@ static struct bench_stats bench_gtod_syscall(uint64_t freq_hz)
 static struct bench_stats bench_gtod_vdso(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
+	struct timeval tv;
 
-	/* TODO: implement
-	 * Hint: struct timeval tv; gettimeofday(&tv, NULL);
-	 */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		gettimeofday(&tv, NULL);
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			gettimeofday(&tv, NULL);
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 
@@ -266,12 +324,26 @@ static struct bench_stats bench_gtod_vdso(uint64_t freq_hz)
 static struct bench_stats bench_clock_gettime_vdso(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
+	struct timespec ts;
 
-	/* TODO: implement
-	 * Hint: struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
-	 */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			clock_gettime(CLOCK_MONOTONIC, &ts);
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 
@@ -279,12 +351,26 @@ static struct bench_stats bench_clock_gettime_vdso(uint64_t freq_hz)
 static struct bench_stats bench_kstats(uint64_t freq_hz)
 {
 	double results[NUM_TRIALS];
+	struct kstats ks;
 
-	/* TODO: implement
-	 * Hint: struct kstats ks; syscall(__NR_kstats, &ks);
-	 */
-	(void)freq_hz;
-	memset(results, 0, sizeof(results));
+	for (int i = 0; i < WARMUP_ITERS; i++)
+		syscall(__NR_kstats, &ks);
+
+	for (int t = 0; t < NUM_TRIALS; t++) {
+		uint64_t start, end;
+
+		cpuid_barrier();
+		start = rdtscp();
+
+		for (int i = 0; i < BENCH_ITERS; i++)
+			syscall(__NR_kstats, &ks);
+
+		cpuid_barrier();
+		end = rdtscp();
+
+		results[t] = cycles_to_ns((end - start) / BENCH_ITERS, freq_hz);
+	}
+
 	return compute_stats(results, NUM_TRIALS);
 }
 

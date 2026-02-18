@@ -1,0 +1,55 @@
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index ced2a1deecd7..92ea91da1f5a 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -394,6 +394,9 @@
+ 467	common	open_tree_attr		sys_open_tree_attr
+ 468	common	file_getattr		sys_file_getattr
+ 469	common	file_setattr		sys_file_setattr
++470    common    kstats    sys_kstats
++471    common    procinfo    sys_procinfo
++472    common    null    sys_null
+ 
+ #
+ # Due to a historical design error, certain syscalls are numbered differently
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 66c06fcdfe19..4301ccfd5bc1 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -1329,4 +1329,9 @@ int __sys_getsockopt(int fd, int level, int optname, char __user *optval,
+ 		int __user *optlen);
+ int __sys_setsockopt(int fd, int level, int optname, char __user *optval,
+ 		int optlen);
++struct kstats;
++asmlinkage long sys_kstats(struct kstats __user *stats);
++struct procinfo; // 전방 선언
++asmlinkage long sys_procinfo(pid_t pid, struct procinfo __user *info);
++asmlinkage long sys_null(void);
+ #endif
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 04e0077fb4c9..6a2a8fb735f7 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -859,7 +859,7 @@ __SYSCALL(__NR_file_getattr, sys_file_getattr)
+ __SYSCALL(__NR_file_setattr, sys_file_setattr)
+ 
+ #undef __NR_syscalls
+-#define __NR_syscalls 470
++#define __NR_syscalls 473
+ 
+ /*
+  * 32 bit systems traditionally used different
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 9fe722305c9b..db057387a8bf 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -10,7 +10,8 @@ obj-y     = fork.o exec_domain.o panic.o \
+ 	    extable.o params.o \
+ 	    kthread.o sys_ni.o nsproxy.o nstree.o nscommon.o \
+ 	    notifier.o ksysfs.o cred.o reboot.o \
+-	    async.o range.o smpboot.o ucount.o regset.o ksyms_common.o
++	    async.o range.o smpboot.o ucount.o regset.o ksyms_common.o \
++	    kstats.o
+ 
+ obj-$(CONFIG_MULTIUSER) += groups.o
+ obj-$(CONFIG_VHOST_TASK) += vhost_task.o

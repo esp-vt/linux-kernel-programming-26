@@ -94,8 +94,8 @@ int main(void)
 	 */
 
 	/* Uncomment this line to trigger the kill: */
-	/* pid_t pid = getpid(); */
-	/* printf("PID: %d\n", pid); */  /* This line never executes */
+	pid_t pid = getpid(); 
+	printf("PID: %d\n", pid);  /* This line never executes */
 
 	/*
 	 * If you didn't uncomment getpid(), we can still exit cleanly
