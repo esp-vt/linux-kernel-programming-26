@@ -1,0 +1,9 @@
+Task1: 1 hr
+
+Task2: 2 hr
+
+Task3: 6 hr 
+
+Task4: 2 hr
+
+Task5: 2 hr

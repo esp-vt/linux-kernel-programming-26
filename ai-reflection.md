@@ -1,16 +1,20 @@
 ## Part 6: AI Usage Reflection
 
-**Tools used:** <list all AI tools, or "none">
+**Tools used:** Clade Code, Gemini and ChatGPT
 
 **How AI helped:**
-<describe specific assistance with at least one concrete example>
+
+It helped me when I did kernel debugging and implemented the syscalls. Especially, I mostly relied on LLMs to amplify the analysis.md, fixing the grammatical issues. 
 
 **Limitations encountered:**
-<describe incorrect/misleading AI responses, or "none encountered">
+
+none
 
 **Learning impact:**
-<reflect on whether AI helped you learn vs. just complete tasks>
+
+I believe it helped me learn about kernel a lot since I don't need to spend time on searching for the solution for the errors and trivial writing concerns.
 
 **Suggestions:**
-Overall usefulness (1-5): <rating>
-<suggestions for future project design>
+Overall usefulness (1-5): 5
+
+none
